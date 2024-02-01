@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <title>Mini Rede Social</title>
+    </head>
+
+  <style>
+    *{
+      font-family: verdana
+    }
+  </style>
+
+  <body>
+
+    <form>
+      <input name="postei" placeholder="Digite seu post..." autocomplete="off"/>
+      <input type="text" name="username" placeholder="Digite seu nome..."autocomplete="off">
+      <button type="submit">Postar</button>
+    </form>
+
+    <ul class="postagens">
+
+    </ul>
+
+    <script>
+        
+      //Base de dados
+      const miniRedeSocial = {
+        usuarios: [
+          {
+            owner: "imcarlosdavi"
+          }
+        ],
+        posts: [
+          {
+            id: Date.now(),
+            owner: "imcarlosdavi",
+            content: "Meu primeiro post"
+          }
+        ],
+
+        // ler os inputs do usuário
+        readPost(){
+          miniRedeSocial.posts.forEach(({id, owner, content})=>{
+            miniRedeSocial.criaPost({id, owner: owner,content: content},true);
+          })
+        },
+
+
+        //Criando posts na memória
+        criaPost(dados, htmlOnly= false){
+          const idTemp = Date.now();
+            if(!htmlOnly){
+              miniRedeSocial.posts.push({
+              id: dados.id || idTemp,
+              owner: dados.owner,
+              content: dados.content,
+            })
+          }
+
+          const $listaPost = document.querySelector('.postagens');
+          $listaPost.insertAdjacentHTML('afterbegin',`<li data-id="${idTemp}" >user: ${dados.owner}
+          post: ${dados.content} <button class="btn-delete">Delete</button></li>`)
+        },
+
+        apagaPost(id){
+          const listaUpdating = miniRedeSocial.posts.filter((postsId)=>{
+            return postsId.id !== Number(id);
+          })
+          console.log(listaUpdating)
+          miniRedeSocial.posts = listaUpdating;
+        }
+
+      }
+
+
+
+      //Crud: READ "Lendo o post e exibindo no HTML" 
+      miniRedeSocial.readPost();
+
+
+      //Código fonte[Front Web] "Criando post"
+      const $myForm = document.querySelector('form');
+      $myForm.addEventListener('submit', function controller(dados){
+        dados.preventDefault();
+        
+        const $postado = document.querySelector('input[name="postei"]');
+        const $nickName = document.querySelector('input[name="username"]');
+        miniRedeSocial.criaPost({owner: $nickName.value,content: $postado.value});
+        $postado.value = '';
+      })
+
+        //CRUD DELETE
+        document.querySelector('.postagens').addEventListener('click', function(dados){
+          const elementCur = dados.target;
+          const element = dados.target.classList.contains('btn-delete');
+          if(element){
+            console.log("Clicou em apagar!")
+            const id = elementCur.parentNode.getAttribute('data-id')
+            miniRedeSocial.apagaPost(id);
+           elementCur.parentNode.remove();
+          } 
+        })
+    </script>
+  </body>
+</html>
